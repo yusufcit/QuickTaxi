@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quick Taxi Website
 
-## Getting Started
+Production-oriented Next.js application for Quick Taxi (Ireland), with a booking request workflow and Supabase-backed admin management.
 
-First, run the development server:
+## Core Rules
+
+- No online payment.
+- No fare calculation.
+- No public price display.
+- Customer submits a booking request.
+- Admin contacts customer manually by WhatsApp/phone with a quote.
+- Booking is only confirmed after manual admin confirmation.
+
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- Supabase (PostgreSQL + Auth)
+- Zod (validation)
+- Resend (admin email notifications)
+
+## Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Configure environment:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Create Supabase schema from [supabase/schema.sql](supabase/schema.sql).
+
+4. Start dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Admin Access
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Admin login route: `/admin/login`
+- Protected admin routes: `/admin/*`
+- Role mapping table: `admin_users`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Booking Flow
 
-## Learn More
+1. Customer submits request via `/book`.
+2. Request is validated server-side.
+3. Booking reference is generated and saved in PostgreSQL.
+4. Admin notification entry is created.
+5. Optional email notification is sent through Resend.
+6. Admin reviews and updates status in dashboard.
 
-To learn more about Next.js, take a look at the following resources:
+## Security Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Server-side validation with Zod.
+- Admin authorization checks on protected APIs.
+- Honeypot and lightweight rate limiting on public booking endpoint.
+- No secrets are exposed in frontend code.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev`
+- `npm run lint`
+- `npm run build`
+- `npm run start`
