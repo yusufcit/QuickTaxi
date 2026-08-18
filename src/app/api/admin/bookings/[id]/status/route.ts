@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Timestamp } from "firebase-admin/firestore";
 import { bookingStatuses } from "@/lib/config";
 import { requireAdminApiUser } from "@/lib/admin-api";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase, user, authorized } = await requireAdminApiUser();
+  const { db, user, authorized } = await requireAdminApiUser();
   if (!authorized || !user) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
@@ -15,18 +16,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     return new NextResponse("Invalid status", { status: 400 });
   }
 
-  const { data: old } = await supabase.from("bookings").select("status").eq("id", id).maybeSingle();
+  const oldSnapshot = await db.collection("bookings").doc(id).get();
+  const oldData = oldSnapshot.exists ? (oldSnapshot.data() as { status?: string }) : null;
 
-  const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
-  if (error) {
-    return new NextResponse("Unable to update status", { status: 500 });
-  }
+  await db.collection("bookings").doc(id).set({ status, updated_at: Timestamp.now() }, { merge: true });
 
-  await supabase.from("booking_status_history").insert({
+  await db.collection("booking_status_history").add({
     booking_id: id,
-    old_status: old?.status ?? null,
+    old_status: oldData?.status ?? null,
     new_status: status,
-    changed_by: user.id,
+    changed_by: user.uid,
+    created_at: Timestamp.now(),
   });
 
   const referer = request.headers.get("referer") ?? "/admin/bookings";

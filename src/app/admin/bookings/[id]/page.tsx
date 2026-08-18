@@ -2,15 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { bookingStatuses, siteConfig, whatsappUrl } from "@/lib/config";
 import { requireAdminUser } from "@/lib/auth";
+import { getAllDrivers, getBookingById } from "@/lib/firebase/collections";
 
 export default async function BookingDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase } = await requireAdminUser();
+  await requireAdminUser();
 
-  const [{ data: booking }, { data: drivers }] = await Promise.all([
-    supabase.from("bookings").select("*").eq("id", id).maybeSingle(),
-    supabase.from("drivers").select("id, name, vehicle, registration, phone, active").eq("active", true),
-  ]);
+  const [booking, drivers] = await Promise.all([getBookingById(id), getAllDrivers()]);
 
   if (!booking) {
     notFound();
@@ -74,7 +72,7 @@ export default async function BookingDetailsPage({ params }: { params: Promise<{
           <form method="post" action={`/api/admin/bookings/${booking.id}/assign-driver`} className="mt-3 space-y-3">
             <select name="driverId" defaultValue={booking.assigned_driver_id ?? ""} className="input">
               <option value="">No driver assigned</option>
-              {(drivers ?? []).map((driver) => (
+              {drivers.filter((driver) => driver.active).map((driver) => (
                 <option key={driver.id} value={driver.id}>
                   {driver.name} - {driver.vehicle ?? "Vehicle"} ({driver.registration ?? "No reg"})
                 </option>

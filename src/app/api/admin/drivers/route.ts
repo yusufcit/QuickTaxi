@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Timestamp } from "firebase-admin/firestore";
 import { requireAdminApiUser } from "@/lib/admin-api";
 
 export async function POST(request: NextRequest) {
-  const { supabase, authorized } = await requireAdminApiUser();
+  const { db, authorized } = await requireAdminApiUser();
   if (!authorized) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
@@ -24,10 +25,10 @@ export async function POST(request: NextRequest) {
     return new NextResponse("Driver name is required", { status: 400 });
   }
 
-  const { error } = await supabase.from("drivers").insert(payload);
-  if (error) {
-    return new NextResponse("Unable to create driver", { status: 500 });
-  }
+  await db.collection("drivers").add({
+    ...payload,
+    created_at: Timestamp.now(),
+  });
 
   const referer = request.headers.get("referer") ?? "/admin/drivers";
   return NextResponse.redirect(referer, { status: 303 });

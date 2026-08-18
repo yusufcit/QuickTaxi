@@ -1,20 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireAdminApiUser } from "@/lib/admin-api";
+import { getAllBookings } from "@/lib/firebase/collections";
 
 export async function GET() {
-  const { supabase, authorized } = await requireAdminApiUser();
+  const { authorized } = await requireAdminApiUser();
   if (!authorized) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
-
-  const { data: bookings, error } = await supabase
-    .from("bookings")
-    .select("booking_reference, customer_name, phone, pickup_address, destination_address, pickup_date, pickup_time, passengers, large_luggage, small_luggage, status, quoted_fare, created_at")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    return new NextResponse("Failed to export bookings", { status: 500 });
-  }
+  const bookings = await getAllBookings();
 
   const header = [
     "Booking Reference",
@@ -32,7 +25,7 @@ export async function GET() {
     "Created",
   ];
 
-  const rows = (bookings ?? []).map((b) => [
+  const rows = bookings.map((b) => [
     b.booking_reference,
     b.customer_name,
     b.phone,

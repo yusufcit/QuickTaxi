@@ -1,13 +1,16 @@
 import { requireAdminUser } from "@/lib/auth";
+import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 
 export default async function AdminSettingsPage() {
-  const { supabase } = await requireAdminUser();
-  const { data: settings } = await supabase
-    .from("site_settings")
-    .select("key, value")
-    .in("key", ["business_hours", "booking_unavailable", "service_areas", "airports"]);
-
-  const map = new Map((settings ?? []).map((entry) => [entry.key, entry.value]));
+  await requireAdminUser();
+  const db = getFirebaseAdminDb();
+  const settingsSnapshot = await db.collection("site_settings").get();
+  const map = new Map(
+    settingsSnapshot.docs.map((doc) => {
+      const data = doc.data() as { value?: string };
+      return [doc.id, data.value ?? ""] as const;
+    }),
+  );
 
   return (
     <section className="space-y-6">

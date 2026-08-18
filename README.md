@@ -1,6 +1,6 @@
 # Quick Taxi Website
 
-Production-oriented Next.js application for Quick Taxi (Ireland), with a booking request workflow and Supabase-backed admin management.
+Production-oriented Next.js application for Quick Taxi (Ireland), with a booking request workflow and Firebase-backed admin management.
 
 ## Core Rules
 
@@ -16,7 +16,7 @@ Production-oriented Next.js application for Quick Taxi (Ireland), with a booking
 - Next.js App Router
 - TypeScript
 - Tailwind CSS
-- Supabase (PostgreSQL + Auth)
+- Firebase (Firestore + Auth)
 - Zod (validation)
 - Resend (admin email notifications)
 
@@ -34,9 +34,25 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Create Supabase schema from [supabase/schema.sql](supabase/schema.sql).
+3. Configure Firebase Authentication and Firestore.
 
-4. Start dev server:
+4. Add at least one admin user document in Firestore:
+
+- Collection: `admin_users`
+- Document ID: Firebase Auth UID
+- Fields: `role`, `active`, `email`
+
+Example:
+
+```json
+{
+	"role": "super_admin",
+	"active": true,
+	"email": "admin@quicktaxi.ie"
+}
+```
+
+5. Start dev server:
 
 ```bash
 npm run dev
@@ -46,7 +62,7 @@ npm run dev
 
 - Admin login route: `/admin/login`
 - Protected admin routes: `/admin/*`
-- Role mapping table: `admin_users`
+- Role mapping collection: `admin_users`
 
 ## Booking Flow
 

@@ -1,28 +1,23 @@
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/auth";
+import { getAllBookings } from "@/lib/firebase/collections";
 
 export default async function AdminDashboardPage() {
-  const { supabase } = await requireAdminUser();
+  await requireAdminUser();
 
   const today = new Date().toISOString().slice(0, 10);
-
-  const [{ count: total }, { count: todayCount }, { count: newCount }, { data: upcoming }] = await Promise.all([
-    supabase.from("bookings").select("id", { count: "exact", head: true }),
-    supabase
-      .from("bookings")
-      .select("id", { count: "exact", head: true })
-      .eq("pickup_date", today),
-    supabase
-      .from("bookings")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "New Request"),
-    supabase
-      .from("bookings")
-      .select("id, booking_reference, customer_name, pickup_address, destination_address, pickup_date, pickup_time, status, passengers")
-      .gte("pickup_date", today)
-      .order("pickup_date", { ascending: true })
-      .limit(10),
-  ]);
+  const allBookings = await getAllBookings();
+  const upcoming = allBookings
+    .filter((booking) => booking.pickup_date >= today)
+    .sort((a, b) => {
+      const left = `${a.pickup_date} ${a.pickup_time}`;
+      const right = `${b.pickup_date} ${b.pickup_time}`;
+      return left.localeCompare(right);
+    })
+    .slice(0, 10);
+  const total = allBookings.length;
+  const todayCount = allBookings.filter((booking) => booking.pickup_date === today).length;
+  const newCount = allBookings.filter((booking) => booking.status === "New Request").length;
 
   return (
     <div className="space-y-8">

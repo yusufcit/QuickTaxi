@@ -1,11 +1,9 @@
 import { requireAdminUser } from "@/lib/auth";
+import { getAllDrivers } from "@/lib/firebase/collections";
 
 export default async function AdminDriversPage() {
-  const { supabase } = await requireAdminUser();
-  const { data: drivers } = await supabase
-    .from("drivers")
-    .select("id, name, phone, email, vehicle, registration, vehicle_type, capacity, active")
-    .order("name", { ascending: true });
+  await requireAdminUser();
+  const drivers = await getAllDrivers();
 
   return (
     <section className="space-y-6">
@@ -40,7 +38,7 @@ export default async function AdminDriversPage() {
             </tr>
           </thead>
           <tbody>
-            {(drivers ?? []).map((driver) => (
+            {drivers.map((driver) => (
               <tr key={driver.id} className="border-b border-[#edf1fd]">
                 <td className="py-2">{driver.name}</td>
                 <td className="py-2">{driver.phone ?? "-"}</td>

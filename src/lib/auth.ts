@@ -1,28 +1,43 @@
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import { getFirebaseAdminAuth, getFirebaseAdminDb } from "@/lib/firebase/admin";
 
 export type AdminRole = "super_admin" | "admin" | "dispatcher";
 
 export async function requireAdminUser() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const session = cookieStore.get("qt_admin_session")?.value;
 
-  if (!user) {
+  if (!session) {
     redirect("/admin/login");
   }
 
-  const { data: adminUser } = await supabase
-    .from("admin_users")
-    .select("id, role, active")
-    .eq("user_id", user.id)
-    .eq("active", true)
-    .maybeSingle();
+  let decoded: { uid: string; email?: string };
+  try {
+    decoded = (await getFirebaseAdminAuth().verifySessionCookie(session, true)) as {
+      uid: string;
+      email?: string;
+    };
+  } catch {
+    redirect("/admin/login");
+  }
 
-  if (!adminUser) {
+  const db = getFirebaseAdminDb();
+  const adminSnapshot = await db.collection("admin_users").doc(decoded.uid).get();
+  const adminUser = adminSnapshot.exists
+    ? (adminSnapshot.data() as { role?: AdminRole; active?: boolean })
+    : null;
+
+  if (!adminUser?.active || !adminUser.role) {
     redirect("/admin/login?error=unauthorized");
   }
 
-  return { user, role: adminUser.role as AdminRole, supabase };
+  return {
+    user: {
+      uid: decoded.uid,
+      email: decoded.email ?? null,
+    },
+    role: adminUser.role,
+    db,
+  };
 }

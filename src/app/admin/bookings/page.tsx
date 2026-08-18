@@ -1,37 +1,43 @@
 import Link from "next/link";
 import { bookingStatuses } from "@/lib/config";
 import { requireAdminUser } from "@/lib/auth";
+import { getAllBookings } from "@/lib/firebase/collections";
 
 export default async function AdminBookingsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { supabase } = await requireAdminUser();
+  await requireAdminUser();
   const params = await searchParams;
 
   const queryText = typeof params.q === "string" ? params.q : "";
   const statusFilter = typeof params.status === "string" ? params.status : "";
 
-  let query = supabase
-    .from("bookings")
-    .select(
-      "id, booking_reference, customer_name, phone, pickup_date, pickup_time, pickup_address, destination_address, passengers, large_luggage, small_luggage, status, created_at, assigned_driver_id",
-    )
-    .order("created_at", { ascending: false })
-    .limit(200);
+  const allBookings = await getAllBookings();
+  const q = queryText.trim().toLowerCase();
+  const bookings = allBookings.filter((booking) => {
+    const matchesStatus = statusFilter ? booking.status === statusFilter : true;
+    if (!matchesStatus) {
+      return false;
+    }
 
-  if (statusFilter) {
-    query = query.eq("status", statusFilter);
-  }
+    if (!q) {
+      return true;
+    }
 
-  if (queryText) {
-    query = query.or(
-      `booking_reference.ilike.%${queryText}%,customer_name.ilike.%${queryText}%,phone.ilike.%${queryText}%,pickup_address.ilike.%${queryText}%,destination_address.ilike.%${queryText}%`,
-    );
-  }
+    const haystack = [
+      booking.booking_reference,
+      booking.customer_name,
+      booking.phone,
+      booking.pickup_address,
+      booking.destination_address,
+    ]
+      .join(" ")
+      .toLowerCase();
 
-  const { data: bookings } = await query;
+    return haystack.includes(q);
+  });
 
   return (
     <section className="space-y-5">
@@ -67,7 +73,7 @@ export default async function AdminBookingsPage({
             </tr>
           </thead>
           <tbody>
-            {(bookings ?? []).map((booking) => (
+            {bookings.map((booking) => (
               <tr key={booking.id} className="border-b border-[#edf1fd]">
                 <td className="py-2 font-bold">{booking.booking_reference}</td>
                 <td className="py-2">{booking.customer_name}</td>

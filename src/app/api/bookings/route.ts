@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Timestamp } from "firebase-admin/firestore";
 import { Resend } from "resend";
 import { bookingRequestSchema, sanitizePhone } from "@/lib/booking";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 
 function getClientIp(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -81,23 +82,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Request rejected." }, { status: 400 });
     }
 
-    const supabase = createSupabaseAdminClient();
+    const db = getFirebaseAdminDb();
 
     const duplicatePhone = sanitizePhone(parsed.data.phone);
-    const { data: duplicate, error: duplicateError } = await supabase
-      .from("bookings")
-      .select("id")
-      .eq("phone", duplicatePhone)
-      .eq("pickup_date", parsed.data.pickupDate)
-      .eq("pickup_time", parsed.data.pickupTime)
-      .eq("pickup_address", parsed.data.pickupAddress)
-      .eq("destination_address", parsed.data.destinationAddress)
-      .limit(1)
-      .maybeSingle();
+    const possibleDupes = await db
+      .collection("bookings")
+      .where("phone", "==", duplicatePhone)
+      .where("pickup_date", "==", parsed.data.pickupDate)
+      .limit(25)
+      .get();
 
-    if (duplicateError) {
-      throw duplicateError;
-    }
+    const duplicate = possibleDupes.docs.find((doc) => {
+      const value = doc.data() as {
+        pickup_time?: string;
+        pickup_address?: string;
+        destination_address?: string;
+      };
+      return (
+        value.pickup_time === parsed.data.pickupTime
+        && value.pickup_address === parsed.data.pickupAddress
+        && value.destination_address === parsed.data.destinationAddress
+      );
+    });
 
     if (duplicate) {
       return NextResponse.json(
@@ -106,25 +112,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const today = new Date();
-    const start = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
-    const end = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+    const createdDate = new Date().toISOString().slice(0, 10);
+    const todayBookings = await db
+      .collection("bookings")
+      .where("created_date", "==", createdDate)
+      .count()
+      .get();
+    const bookingReference = buildBookingReference(todayBookings.data().count + 1);
 
-    const { count, error: countError } = await supabase
-      .from("bookings")
-      .select("id", { count: "exact", head: true })
-      .gte("created_at", start)
-      .lt("created_at", end);
-
-    if (countError) {
-      throw countError;
-    }
-
-    const bookingReference = buildBookingReference((count ?? 0) + 1);
-
-    const { data: booking, error: insertError } = await supabase
-      .from("bookings")
-      .insert({
+    const now = Timestamp.now();
+    const bookingDoc = await db.collection("bookings").add({
         booking_reference: bookingReference,
         customer_name: parsed.data.customerName,
         phone: duplicatePhone,
@@ -150,20 +147,18 @@ export async function POST(request: NextRequest) {
         return_destination: parsed.data.returnDestination || null,
         special_requirements: parsed.data.specialRequirements || null,
         status: "New Request",
-      })
-      .select("id, booking_reference")
-      .single();
+        created_date: createdDate,
+        created_at: now,
+        updated_at: now,
+      });
 
-    if (insertError) {
-      throw insertError;
-    }
-
-    await supabase.from("admin_notifications").insert({
+    await db.collection("admin_notifications").add({
       type: "booking",
       title: `New booking request: ${bookingReference}`,
       message: `${parsed.data.customerName} requested ${parsed.data.pickupAddress} to ${parsed.data.destinationAddress}`,
-      booking_id: booking.id,
+      booking_id: bookingDoc.id,
       read: false,
+      created_at: now,
     });
 
     await sendAdminEmail({
@@ -180,7 +175,7 @@ export async function POST(request: NextRequest) {
       specialRequirements: parsed.data.specialRequirements,
     });
 
-    return NextResponse.json({ bookingReference: booking.booking_reference }, { status: 201 });
+    return NextResponse.json({ bookingReference }, { status: 201 });
   } catch (error) {
     console.error("Booking request error", error);
     return NextResponse.json(

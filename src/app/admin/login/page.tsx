@@ -2,7 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { getFirebaseClientAuth } from "@/lib/firebase/client";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -17,17 +18,31 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError(null);
 
-    const supabase = createSupabaseBrowserClient();
-    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const auth = getFirebaseClientAuth();
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await credential.user.getIdToken();
 
-    if (loginError) {
-      setError(loginError.message);
+      const response = await fetch("/api/admin/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: string };
+        setError(payload.error ?? "Admin account is not authorized.");
+        setLoading(false);
+        return;
+      }
+
+      router.push("/admin");
+      router.refresh();
+    } catch (loginError) {
+      const message = loginError instanceof Error ? loginError.message : "Login failed.";
+      setError(message);
       setLoading(false);
-      return;
     }
-
-    router.push("/admin");
-    router.refresh();
   }
 
   return (

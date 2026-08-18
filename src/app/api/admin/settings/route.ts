@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Timestamp } from "firebase-admin/firestore";
 import { requireAdminApiUser } from "@/lib/admin-api";
 
 export async function POST(request: NextRequest) {
-  const { supabase, authorized } = await requireAdminApiUser();
+  const { db, authorized } = await requireAdminApiUser();
   if (!authorized) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
@@ -16,10 +17,14 @@ export async function POST(request: NextRequest) {
     { key: "airports", value: String(formData.get("airports") ?? "").trim() },
   ];
 
-  const { error } = await supabase.from("site_settings").upsert(settings, { onConflict: "key" });
-  if (error) {
-    return new NextResponse("Unable to save settings", { status: 500 });
-  }
+  await Promise.all(
+    settings.map((setting) =>
+      db
+        .collection("site_settings")
+        .doc(setting.key)
+        .set({ value: setting.value, updated_at: Timestamp.now() }, { merge: true }),
+    ),
+  );
 
   const referer = request.headers.get("referer") ?? "/admin/settings";
   return NextResponse.redirect(referer, { status: 303 });

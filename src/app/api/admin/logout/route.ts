@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST() {
-  const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
-  return NextResponse.redirect(new URL("/admin/login", process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"), {
-    status: 303,
+  const response = NextResponse.redirect(
+    new URL("/admin/login", process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+    { status: 303 },
+  );
+  response.cookies.set("qt_admin_session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
   });
+  return response;
 }

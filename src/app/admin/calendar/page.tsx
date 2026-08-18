@@ -1,19 +1,21 @@
 import Link from "next/link";
 import { requireAdminUser } from "@/lib/auth";
+import { getAllBookings } from "@/lib/firebase/collections";
 
 export default async function AdminCalendarPage() {
-  const { supabase } = await requireAdminUser();
+  await requireAdminUser();
   const today = new Date().toISOString().slice(0, 10);
 
-  const { data: bookings } = await supabase
-    .from("bookings")
-    .select("id, booking_reference, pickup_date, pickup_time, customer_name, status")
-    .gte("pickup_date", today)
-    .order("pickup_date", { ascending: true })
-    .order("pickup_time", { ascending: true })
-    .limit(200);
+  const bookings = (await getAllBookings())
+    .filter((booking) => booking.pickup_date >= today)
+    .sort((a, b) => {
+      const left = `${a.pickup_date} ${a.pickup_time}`;
+      const right = `${b.pickup_date} ${b.pickup_time}`;
+      return left.localeCompare(right);
+    })
+    .slice(0, 200);
 
-  const grouped = (bookings ?? []).reduce<Record<string, typeof bookings>>((acc, booking) => {
+  const grouped = bookings.reduce<Record<string, typeof bookings>>((acc, booking) => {
     acc[booking.pickup_date] = [...(acc[booking.pickup_date] ?? []), booking];
     return acc;
   }, {});

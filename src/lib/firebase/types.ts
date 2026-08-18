@@ -1,0 +1,50 @@
+export type AdminRole = "super_admin" | "admin" | "dispatcher";
+
+export type BookingRecord = {
+  id: string;
+  booking_reference: string;
+  customer_name: string;
+  phone: string;
+  email?: string | null;
+  preferred_contact: "WhatsApp" | "Phone" | "Email";
+  booking_type: "Advance Booking" | "As Soon As Possible";
+  journey_type: "One Way" | "Return Journey";
+  pickup_address: string;
+  pickup_area?: string | null;
+  destination_address: string;
+  destination_area?: string | null;
+  pickup_date: string;
+  pickup_time: string;
+  return_date?: string | null;
+  return_time?: string | null;
+  return_pickup?: string | null;
+  return_destination?: string | null;
+  passengers: number;
+  large_luggage: number;
+  small_luggage: number;
+  flight_number?: string | null;
+  airport?: string | null;
+  airport_direction?: "Arrival" | "Departure" | null;
+  special_requirements?: string | null;
+  quoted_fare?: string | null;
+  status: string;
+  assigned_driver_id?: string | null;
+  admin_notes?: string | null;
+  created_at: string;
+  updated_at: string;
+  created_date: string;
+};
+
+export type DriverRecord = {
+  id: string;
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  vehicle?: string | null;
+  registration?: string | null;
+  vehicle_type?: string | null;
+  capacity?: number | null;
+  active: boolean;
+  notes?: string | null;
+  created_at: string;
+};
