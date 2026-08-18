@@ -1,11 +1,11 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { getFirebaseClientAuth } from "@/lib/firebase/client";
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +46,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4">
+    <>
       <h1 className="text-3xl font-black text-[#0f1d3a]">Quick Taxi Admin Login</h1>
       {params.get("error") === "unauthorized" && (
         <p className="mt-3 text-sm font-semibold text-red-700">Your account is not authorized for admin access.</p>
@@ -65,6 +65,16 @@ export default function AdminLoginPage() {
           {loading ? "Signing in..." : "Sign in"}
         </button>
       </form>
+    </>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4">
+      <Suspense fallback={<p className="text-sm text-[#2e3d5f]">Loading...</p>}>
+        <AdminLoginForm />
+      </Suspense>
     </div>
   );
 }
