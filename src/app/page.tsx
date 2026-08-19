@@ -62,7 +62,6 @@ export default function Home() {
       <section className="border-b border-[#f2c230] bg-[#0f1d3a] text-white">
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-12 lg:grid-cols-2 lg:px-6 lg:py-20">
           
-          {/* 1. Added flex utilities here to control structural horizontal alignment */}
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#f6d35a]">Your Local Taxi Service</p>
             <h1 className="mt-3 text-4xl font-black leading-tight lg:text-6xl">Reliable. Safe. Trusted.</h1>
@@ -74,12 +73,17 @@ export default function Home() {
               Airport transfers, local journeys and long-distance travel for individuals, families and groups.
             </p>
             
-            {/* 2. Added justify-center utility so call-to-action buttons balance in the center box on mobile phones */}
-            <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
-              <Link href="/book" className="bg-[#f2c230] px-5 py-3 text-sm font-black text-[#0f1d3a]">BOOK A TAXI</Link>
-              <a href={whatsappUrl()} target="_blank" rel="noreferrer" className="border border-[#f2c230] px-5 py-3 text-sm font-black text-[#f6d35a]">WHATSAPP US</a>
+            {/* Primary Action Buttons Container */}
+            <div className="mt-7 flex flex-wrap justify-center items-center gap-3 lg:justify-start">
+              <Link href="/book" className="bg-[#f2c230] px-5 py-3 text-sm font-black text-[#0f1d3a]">
+                BOOK A TAXI
+              </Link>
+              <a href={whatsappUrl()} target="_blank" rel="noreferrer" className="border border-[#f2c230] px-5 py-3 text-sm font-black text-[#f6d35a]">
+                WHATSAPP US
+              </a>
             </div>
             
+            {/* Call Component Box */}
             <a
               href={siteConfig.phoneTel}
               className="mt-6 inline-flex items-center gap-2 text-base font-black text-[#fbc02d] transition-colors hover:text-[#f2c230]"
@@ -100,6 +104,16 @@ export default function Home() {
               <span className="underline underline-offset-4 decoration-2">
                 CALL: {siteConfig.phoneDisplay}
               </span>
+            </a>
+
+            {/* Clean, stand-alone review anchor link positioned cleanly below the number block */}
+            <a 
+              href="https://google.com"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 block text-sm font-semibold text-gray-300 hover:text-white underline underline-offset-4 transition duration-200"
+            >
+              Leave us a review on Google ⭐
             </a>
           </div>
 

@@ -23,12 +23,8 @@ export function SiteHeader() {
             width={384}
             height={128}
             priority={true}
-            className="h-11 w-auto" // Added w-auto back here
+            className="h-11 w-auto"
           />
-          {/* <div>
-            <p className="text-xl font-black tracking-wide">Quick Taxi</p>
-            <p className="text-xs text-[#f6d35a]">Reliable local taxi service</p>
-          </div> */}
         </Link>
 
         <nav className="hidden items-center gap-5 text-sm font-semibold lg:flex">
@@ -39,10 +35,24 @@ export function SiteHeader() {
           ))}
         </nav>
 
+        {/* Desktop Container */}
         <div className="hidden items-center gap-2 md:flex">
+          {/* Facebook f Logo Icon placed on the left side of desktop call actions */}
+          <a 
+            href="https://www.facebook.com/profile.php?id=61593252488154" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="border border-[#f2c230] p-2 text-[#f6d35a] hover:bg-[#f2c230] hover:text-[#0f1d3a] transition inline-flex items-center justify-center h-10 w-10"
+            aria-label="Facebook Profile"
+          >
+            <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+              <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/>
+            </svg>
+          </a>
+
           <a
             href={siteConfig.phoneTel}
-            className="inline-flex items-center gap-2 rounded-none border border-[#f2c230] px-3 py-2 text-sm font-bold text-[#f6d35a] hover:bg-[#f2c230] hover:text-[#0f1d3a]"
+            className="inline-flex items-center gap-2 rounded-none border border-[#f2c230] px-3 py-2 text-sm font-bold text-[#f6d35a] hover:bg-[#f2c230] hover:text-[#0f1d3a] h-10"
           >
             <PhoneCall className="h-4 w-4" />
             Call: {siteConfig.phoneDisplay}
@@ -51,20 +61,34 @@ export function SiteHeader() {
             href={whatsappUrl()}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-none bg-[#f2c230] px-3 py-2 text-sm font-bold text-[#0f1d3a] hover:bg-[#ffd95d]"
+            className="inline-flex items-center gap-2 rounded-none bg-[#f2c230] px-3 py-2 text-sm font-bold text-[#0f1d3a] hover:bg-[#ffd95d] h-10"
           >
             <MessageCircle className="h-4 w-4" />
             WhatsApp
           </a>
           <Link
             href="/book"
-            className="inline-flex items-center rounded-none bg-white px-3 py-2 text-sm font-extrabold text-[#0f1d3a] hover:bg-[#eef2ff]"
+            className="inline-flex items-center rounded-none bg-white px-3 py-2 text-sm font-extrabold text-[#0f1d3a] hover:bg-[#eef2ff] h-10"
           >
             Book Now
           </Link>
         </div>
 
+        {/* Mobile Container */}
         <div className="flex items-center gap-2 md:hidden">
+          {/* Facebook f Logo Icon placed on the left side of mobile call actions */}
+          <a 
+            href="https://www.facebook.com/profile.php?id=61593252488154" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="rounded-none border border-[#f2c230] p-2 text-[#f6d35a]"
+            aria-label="Facebook Profile"
+          >
+            <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+              <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/>
+            </svg>
+          </a>
+
           <a href={siteConfig.phoneTel} className="rounded-none border border-[#f2c230] p-2 text-[#f6d35a]">
             <PhoneCall className="h-4 w-4" />
           </a>
