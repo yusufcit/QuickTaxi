@@ -61,7 +61,9 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <section className="border-b border-[#f2c230] bg-[#0f1d3a] text-white">
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-12 lg:grid-cols-2 lg:px-6 lg:py-20">
-          <div>
+          
+          {/* 1. Added flex utilities here to control structural horizontal alignment */}
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#f6d35a]">Your Local Taxi Service</p>
             <h1 className="mt-3 text-4xl font-black leading-tight lg:text-6xl">Reliable. Safe. Trusted.</h1>
             <p className="mt-5 max-w-2xl text-base text-[#d7deef]">
@@ -71,20 +73,47 @@ export default function Home() {
             <p className="mt-2 max-w-2xl text-base text-[#d7deef]">
               Airport transfers, local journeys and long-distance travel for individuals, families and groups.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
+            
+            {/* 2. Added justify-center utility so call-to-action buttons balance in the center box on mobile phones */}
+            <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
               <Link href="/book" className="bg-[#f2c230] px-5 py-3 text-sm font-black text-[#0f1d3a]">BOOK A TAXI</Link>
               <a href={whatsappUrl()} target="_blank" rel="noreferrer" className="border border-[#f2c230] px-5 py-3 text-sm font-black text-[#f6d35a]">WHATSAPP US</a>
             </div>
-            <a href={siteConfig.phoneTel} className="mt-6 inline-block text-lg font-black text-[#f6d35a]">{siteConfig.phoneDisplay}</a>
+            
+            <a
+              href={siteConfig.phoneTel}
+              className="mt-6 inline-flex items-center gap-2 text-base font-black text-[#fbc02d] transition-colors hover:text-[#f2c230]"
+            >
+              <svg
+                xmlns="http://w3.org"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5 text-white"
+              >
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+
+              <span className="underline underline-offset-4 decoration-2">
+                CALL: {siteConfig.phoneDisplay}
+              </span>
+            </a>
           </div>
-          <div className="relative min-h-72 overflow-hidden border border-[#f2c230] bg-[#0b1732]">
-            <Image
-              src="/branding/quicktaxi-logo.jpeg"
-              alt="Quick Taxi branded vehicle"
-              fill
-              className="object-cover"
-              priority
-            />
+
+          <div className="relative flex min-h-72 items-center justify-center border border-[#f2c230] bg-[#0b1732] p-6">
+            <div className="relative w-full max-w-[450px] aspect-[3/1]">
+              <Image
+                src="/branding/quicktaxi-logo.png"
+                alt="Quick Taxi logo layout"
+                fill
+                priority={true}
+                className="object-contain"
+                sizes="(max-width: 768px) 90vw, 450px"
+              />
+            </div>
           </div>
         </div>
       </section>

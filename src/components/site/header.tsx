@@ -20,14 +20,15 @@ export function SiteHeader() {
           <Image
             src="/branding/quicktaxi-logo.png"
             alt="Quick Taxi logo"
-            width={44}
-            height={44}
-            className="h-11 w-11 object-contain"
+            width={384}
+            height={128}
+            priority={true}
+            className="h-11 w-auto" // Added w-auto back here
           />
-          <div>
+          {/* <div>
             <p className="text-xl font-black tracking-wide">Quick Taxi</p>
             <p className="text-xs text-[#f6d35a]">Reliable local taxi service</p>
-          </div>
+          </div> */}
         </Link>
 
         <nav className="hidden items-center gap-5 text-sm font-semibold lg:flex">
