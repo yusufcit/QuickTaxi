@@ -89,7 +89,7 @@ export default function Home() {
               className="mt-6 inline-flex items-center gap-2 text-base font-black text-[#fbc02d] transition-colors hover:text-[#f2c230]"
             >
               <svg
-                xmlns="http://w3.org"
+                xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -108,7 +108,7 @@ export default function Home() {
 
             {/* Clean, stand-alone review anchor link positioned cleanly below the number block */}
             <a 
-              href="https://google.com"
+              href="https://search.google.com/local/writereview?placeid=ChIJ0cExuV49ukURzVDv0J9hJHo"
               target="_blank"
               rel="noreferrer"
               className="mt-3 block text-sm font-semibold text-gray-300 hover:text-white underline underline-offset-4 transition duration-200"
