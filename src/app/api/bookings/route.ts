@@ -40,7 +40,7 @@ async function sendAdminEmail(input: {
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
-    from: "Quick Taxi <onboarding@resend.dev>",
+    from: "Quick Taxi <noreply@quicktaxi.ie>",
     to: process.env.ADMIN_EMAIL,
     subject: `New Quick Taxi Booking - ${input.bookingReference}`,
     text: [
