@@ -153,27 +153,28 @@ export async function POST(request: NextRequest) {
         updated_at: now,
       });
 
-    // Fire-and-forget Slack alert — does not block the checkout response
-    // ✅ Updated Slack alert block containing ALL customer, journey, luggage, and airport information
-        // ✅ Updated Slack alert block with interactive WhatsApp link and clean copyable phone line
+    // ✅ Upgraded Block Kit Layout for reliable taps, easy copying, and WhatsApp functionality
     await sendOrderSlackAlert({
       bookingReference,
       customerName: parsed.data.customerName,
       email: parsed.data.email || "Not Provided",
+      // We pass the fully formatted layout as a single text block to ensure maximum rendering compatibility
       items: [
-        `*📱 Mobile Number:* \`${duplicatePhone}\` _(Press and hold to copy)_`,
-        `*💬 WhatsApp:* <https://wa.me{duplicatePhone.replace(/[^0-9]/g, "")}|Click to Chat on WhatsApp>`,
-        `*✉️ Preferred Contact:* ${parsed.data.preferredContact}`,
+        `*🚨 New Booking Request:* \`${bookingReference}\`\n`,
+        `*👤 Customer Name:* ${parsed.data.customerName}`,
+        `*📱 Mobile Number:* ${duplicatePhone} _(Double-tap the number digits directly to copy)_`,
+        `*💬 WhatsApp:* https://wa.me{duplicatePhone.replace(/[^0-9]/g, "")}`,
+        `*✉️ Preferred Contact:* ${parsed.data.preferredContact}\n`,
         `*🚖 Booking Type:* ${parsed.data.bookingType}`,
         `*↔️ Journey Type:* ${parsed.data.journeyType}`,
         `*📍 Pickup Address:* ${parsed.data.pickupAddress} ${parsed.data.pickupArea ? `(${parsed.data.pickupArea})` : ""}`,
         `*🏁 Destination:* ${parsed.data.destinationAddress} ${parsed.data.destinationArea ? `(${parsed.data.destinationArea})` : ""}`,
         `*📅 Pickup Date/Time:* ${parsed.data.pickupDate} at ${parsed.data.pickupTime}`,
         `*👥 Passengers:* ${parsed.data.passengers}`,
-        `*🧳 Luggage:* Large Bags: ${parsed.data.largeLuggage || 0} | Small Bags: ${parsed.data.smallLuggage || 0}`,
-        `*✈️ Flight Info:* ${parsed.data.flightNumber ? `${parsed.data.flightNumber} (${parsed.data.airport || ""} - ${parsed.data.airportDirection || ""})` : "None"}`,
+        `*🧳 Luggage:* Large: ${parsed.data.largeLuggage || 0} | Small: ${parsed.data.smallLuggage || 0}\n`,
+        parsed.data.flightNumber ? `*✈️ Flight Info:* ${parsed.data.flightNumber} (${parsed.data.airport || ""} - ${parsed.data.airportDirection || ""})` : "",
         `*📝 Special Requirements:* ${parsed.data.specialRequirements || "None"}`
-      ],
+      ].filter(Boolean), // Cleans out the flight line if it's empty
       orderTotal: null,
     }).catch((error: unknown) => {
       console.error("Slack webhook failed:", error);
