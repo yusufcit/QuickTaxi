@@ -155,12 +155,14 @@ export async function POST(request: NextRequest) {
 
     // Fire-and-forget Slack alert — does not block the checkout response
     // ✅ Updated Slack alert block containing ALL customer, journey, luggage, and airport information
+        // ✅ Updated Slack alert block with interactive WhatsApp link and clean copyable phone line
     await sendOrderSlackAlert({
       bookingReference,
       customerName: parsed.data.customerName,
       email: parsed.data.email || "Not Provided",
       items: [
-        `*📱 Mobile Number:* ${duplicatePhone}`,
+        `*📱 Mobile Number:* \`${duplicatePhone}\` _(Press and hold to copy)_`,
+        `*💬 WhatsApp:* <https://wa.me{duplicatePhone.replace(/[^0-9]/g, "")}|Click to Chat on WhatsApp>`,
         `*✉️ Preferred Contact:* ${parsed.data.preferredContact}`,
         `*🚖 Booking Type:* ${parsed.data.bookingType}`,
         `*↔️ Journey Type:* ${parsed.data.journeyType}`,
@@ -176,7 +178,6 @@ export async function POST(request: NextRequest) {
     }).catch((error: unknown) => {
       console.error("Slack webhook failed:", error);
     });
-
 
     await db.collection("admin_notifications").add({
       type: "booking",
