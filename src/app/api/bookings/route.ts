@@ -154,31 +154,70 @@ export async function POST(request: NextRequest) {
       });
 
     // ✅ Upgraded Block Kit Layout for reliable taps, easy copying, and WhatsApp functionality
-    await sendOrderSlackAlert({
-      bookingReference,
-      customerName: parsed.data.customerName,
-      email: parsed.data.email || "Not Provided",
-      // We pass the fully formatted layout as a single text block to ensure maximum rendering compatibility
-      items: [
-        `*🚨 New Booking Request:* \`${bookingReference}\`\n`,
-        `*👤 Customer Name:* ${parsed.data.customerName}`,
-        `*📱 Mobile Number:* ${duplicatePhone} _(Double-tap the number digits directly to copy)_`,
-        `*💬 WhatsApp:* https://wa.me{duplicatePhone.replace(/[^0-9]/g, "")}`,
-        `*✉️ Preferred Contact:* ${parsed.data.preferredContact}\n`,
-        `*🚖 Booking Type:* ${parsed.data.bookingType}`,
-        `*↔️ Journey Type:* ${parsed.data.journeyType}`,
-        `*📍 Pickup Address:* ${parsed.data.pickupAddress} ${parsed.data.pickupArea ? `(${parsed.data.pickupArea})` : ""}`,
-        `*🏁 Destination:* ${parsed.data.destinationAddress} ${parsed.data.destinationArea ? `(${parsed.data.destinationArea})` : ""}`,
-        `*📅 Pickup Date/Time:* ${parsed.data.pickupDate} at ${parsed.data.pickupTime}`,
-        `*👥 Passengers:* ${parsed.data.passengers}`,
-        `*🧳 Luggage:* Large: ${parsed.data.largeLuggage || 0} | Small: ${parsed.data.smallLuggage || 0}\n`,
-        parsed.data.flightNumber ? `*✈️ Flight Info:* ${parsed.data.flightNumber} (${parsed.data.airport || ""} - ${parsed.data.airportDirection || ""})` : "",
-        `*📝 Special Requirements:* ${parsed.data.specialRequirements || "None"}`
-      ].filter(Boolean), // Cleans out the flight line if it's empty
-      orderTotal: null,
-    }).catch((error: unknown) => {
-      console.error("Slack webhook failed:", error);
-    });
+    const phoneNumber = duplicatePhone.replace(/\D/g, "");
+
+// Convert Irish number to international format for WhatsApp.
+// Example: 0871234567 → 353871234567
+const whatsappNumber = phoneNumber.startsWith("0")
+  ? `353${phoneNumber.substring(1)}`
+  : phoneNumber;
+
+// tel: link uses the original digits so the phone dialer can open.
+const callNumber = phoneNumber;
+
+await sendOrderSlackAlert({
+  bookingReference,
+  customerName: parsed.data.customerName,
+  email: parsed.data.email || "Not Provided",
+
+  items: [
+    `*🚨 New Booking Request:* \`${bookingReference}\`\n`,
+
+    `*👤 Customer Name:* ${parsed.data.customerName}`,
+
+    // Tap the number to call from a mobile device
+    `*📱 Mobile Number:* <tel:${callNumber}|${duplicatePhone}>`,
+
+    // Tap "Open WhatsApp" to open WhatsApp conversation
+    `*💬 WhatsApp:* <https://wa.me/${whatsappNumber}|Open WhatsApp>`,
+
+    `*✉️ Preferred Contact:* ${parsed.data.preferredContact}\n`,
+
+    `*🚖 Booking Type:* ${parsed.data.bookingType}`,
+
+    `*↔️ Journey Type:* ${parsed.data.journeyType}`,
+
+    `*📍 Pickup Address:* ${parsed.data.pickupAddress}${
+      parsed.data.pickupArea ? ` (${parsed.data.pickupArea})` : ""
+    }`,
+
+    `*🏁 Destination:* ${parsed.data.destinationAddress}${
+      parsed.data.destinationArea ? ` (${parsed.data.destinationArea})` : ""
+    }`,
+
+    `*📅 Pickup Date/Time:* ${parsed.data.pickupDate} at ${parsed.data.pickupTime}`,
+
+    `*👥 Passengers:* ${parsed.data.passengers}`,
+
+    `*🧳 Luggage:* Large: ${
+      parsed.data.largeLuggage || 0
+    } | Small: ${parsed.data.smallLuggage || 0}\n`,
+
+    parsed.data.flightNumber
+      ? `*✈️ Flight Info:* ${parsed.data.flightNumber} (${
+          parsed.data.airport || ""
+        } - ${parsed.data.airportDirection || ""})`
+      : "",
+
+    `*📝 Special Requirements:* ${
+      parsed.data.specialRequirements || "None"
+    }`,
+  ].filter(Boolean),
+
+  orderTotal: null,
+}).catch((error: unknown) => {
+  console.error("Slack webhook failed:", error);
+});
 
     await db.collection("admin_notifications").add({
       type: "booking",
