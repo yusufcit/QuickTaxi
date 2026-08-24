@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { bookingRequestSchema, sanitizePhone } from "@/lib/booking";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
+import { sendOrderSlackAlert } from "@/lib/notifications/slack";
 
 function getClientIp(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -151,6 +152,24 @@ export async function POST(request: NextRequest) {
         created_at: now,
         updated_at: now,
       });
+
+    // Fire-and-forget Slack alert — does not block the checkout response
+    void sendOrderSlackAlert({
+      bookingReference,
+      customerName: parsed.data.customerName,
+      email: parsed.data.email || null,
+      items: [
+        `Booking Type: ${parsed.data.bookingType}`,
+        `Journey Type: ${parsed.data.journeyType}`,
+        `Pickup: ${parsed.data.pickupAddress}`,
+        `Destination: ${parsed.data.destinationAddress}`,
+        `Pickup Date/Time: ${parsed.data.pickupDate} ${parsed.data.pickupTime}`,
+        `Passengers: ${parsed.data.passengers}`,
+      ],
+      orderTotal: null,
+    }).catch((error: unknown) => {
+      console.error("Slack webhook failed:", error);
+    });
 
     await db.collection("admin_notifications").add({
       type: "booking",
