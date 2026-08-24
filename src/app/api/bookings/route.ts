@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       });
 
     // Fire-and-forget Slack alert — does not block the checkout response
-    void sendOrderSlackAlert({
+    await sendOrderSlackAlert({
       bookingReference,
       customerName: parsed.data.customerName,
       email: parsed.data.email || null,
