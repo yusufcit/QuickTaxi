@@ -154,22 +154,29 @@ export async function POST(request: NextRequest) {
       });
 
     // Fire-and-forget Slack alert — does not block the checkout response
+    // ✅ Updated Slack alert block containing ALL customer, journey, luggage, and airport information
     await sendOrderSlackAlert({
       bookingReference,
       customerName: parsed.data.customerName,
-      email: parsed.data.email || null,
+      email: parsed.data.email || "Not Provided",
       items: [
-        `Booking Type: ${parsed.data.bookingType}`,
-        `Journey Type: ${parsed.data.journeyType}`,
-        `Pickup: ${parsed.data.pickupAddress}`,
-        `Destination: ${parsed.data.destinationAddress}`,
-        `Pickup Date/Time: ${parsed.data.pickupDate} ${parsed.data.pickupTime}`,
-        `Passengers: ${parsed.data.passengers}`,
+        `*📱 Mobile Number:* ${duplicatePhone}`,
+        `*✉️ Preferred Contact:* ${parsed.data.preferredContact}`,
+        `*🚖 Booking Type:* ${parsed.data.bookingType}`,
+        `*↔️ Journey Type:* ${parsed.data.journeyType}`,
+        `*📍 Pickup Address:* ${parsed.data.pickupAddress} ${parsed.data.pickupArea ? `(${parsed.data.pickupArea})` : ""}`,
+        `*🏁 Destination:* ${parsed.data.destinationAddress} ${parsed.data.destinationArea ? `(${parsed.data.destinationArea})` : ""}`,
+        `*📅 Pickup Date/Time:* ${parsed.data.pickupDate} at ${parsed.data.pickupTime}`,
+        `*👥 Passengers:* ${parsed.data.passengers}`,
+        `*🧳 Luggage:* Large Bags: ${parsed.data.largeLuggage || 0} | Small Bags: ${parsed.data.smallLuggage || 0}`,
+        `*✈️ Flight Info:* ${parsed.data.flightNumber ? `${parsed.data.flightNumber} (${parsed.data.airport || ""} - ${parsed.data.airportDirection || ""})` : "None"}`,
+        `*📝 Special Requirements:* ${parsed.data.specialRequirements || "None"}`
       ],
       orderTotal: null,
     }).catch((error: unknown) => {
       console.error("Slack webhook failed:", error);
     });
+
 
     await db.collection("admin_notifications").add({
       type: "booking",
