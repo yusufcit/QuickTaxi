@@ -52,7 +52,15 @@ Example:
 }
 ```
 
-5. Start dev server:
+5. Optional: add a Slack Incoming Webhook URL to receive a notification for each new booking:
+
+```
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+```
+
+Leave it unset to disable Slack notifications.
+
+6. Start dev server:
 
 ```bash
 npm run dev
