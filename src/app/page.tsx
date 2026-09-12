@@ -61,18 +61,24 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <section className="border-b border-[#f2c230] bg-[#0f1d3a] text-white">
         <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-12 lg:grid-cols-2 lg:px-6 lg:py-20">
-          
+
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#f6d35a]">Your Local Taxi Service</p>
             <h1 className="mt-3 text-4xl font-black leading-tight lg:text-6xl">Reliable. Safe. Trusted.</h1>
             <p className="mt-5 max-w-2xl text-base text-[#d7deef]">
-              Airport transfers, local journeys and long-distance travel across Ireland.
+              Transparent & Regulated Fare Information
             </p>
-            <p className="mt-2 max-w-2xl text-base text-[#d7deef]">Book in advance for a reliable and comfortable service.</p>
+            <p className="mt-2 max-w-2xl text-base text-[#d7deef]">All journeys booked through QuickTaxi.ie are provided by fully licensed, NTA-regulated taxi drivers.</p>
             <p className="mt-2 max-w-2xl text-base text-[#d7deef]">
-              Airport transfers, local journeys and long-distance travel for individuals, families and groups.
+              Unless a fixed fare has been agreed in advance, your journey will be charged according to the official taxi meter.
             </p>
-            
+            <p className="text-lg font-bold text-[#f6d35a]">
+              Prefer a fixed fare?
+            </p>
+            <p className="mt-2 max-w-2xl text-base text-[#d7deef]">
+              Simply complete your booking request and we will provide you with a fixed-price quote before your booking is confirmed, so you know the cost of your journey in advance.
+            </p>
+
             {/* Primary Action Buttons Container */}
             <div className="mt-7 flex flex-wrap justify-center items-center gap-3 lg:justify-start">
               <Link href="/book" className="bg-[#f2c230] px-5 py-3 text-sm font-black text-[#0f1d3a]">
@@ -82,7 +88,7 @@ export default function Home() {
                 WHATSAPP US
               </a>
             </div>
-            
+
             {/* Call Component Box */}
             <a
               href={siteConfig.phoneTel}
@@ -107,7 +113,7 @@ export default function Home() {
             </a>
 
             {/* Clean, stand-alone review anchor link positioned cleanly below the number block */}
-            <a 
+            <a
               href="https://search.google.com/local/writereview?placeid=ChIJ0cExuV49ukURzVDv0J9hJHo"
               target="_blank"
               rel="noreferrer"
