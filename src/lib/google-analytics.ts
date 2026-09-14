@@ -16,7 +16,9 @@ export interface GTagEvent {
 export const trackEvent = (eventData: GTagEvent) => {
   if (typeof window === "undefined") return;
 
-  const gtag = (window as any).gtag;
+  const gtag = (
+    window as Window & { gtag?: (...args: unknown[]) => void }
+  ).gtag;
   if (!gtag) {
     console.warn("Google Analytics not initialized");
     return;

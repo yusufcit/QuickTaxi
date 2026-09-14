@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Oswald, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/config";
@@ -41,7 +42,24 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${headingFont.variable} ${bodyFont.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+
+        {/* Google tag (gtag.js) — GA4 measurement */}
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.gaId}`}
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', '${siteConfig.gaId}');
+          `}
+        </Script>
+      </body>
     </html>
   );
 }
