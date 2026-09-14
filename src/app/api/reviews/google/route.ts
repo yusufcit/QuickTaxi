@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 const GOOGLE_PLACE_ID = process.env.NEXT_PUBLIC_GOOGLE_PLACE_ID || "";
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   if (!GOOGLE_PLACE_ID || !GOOGLE_MAPS_API_KEY) {
     return NextResponse.json(
       { error: "Google API credentials not configured" },
