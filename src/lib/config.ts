@@ -1,6 +1,7 @@
 export const siteConfig = {
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://quicktaxi.ie",
   businessName: process.env.NEXT_PUBLIC_BUSINESS_NAME ?? "Quick Taxi",
+  gaId: process.env.NEXT_PUBLIC_GA_ID ?? "G-JC5HBXS64S",
   phoneDisplay: "+353 87 707 3363",
   phoneTel: "tel:+353877073363",
   whatsappDigits: process.env.NEXT_PUBLIC_WHATSAPP ?? "353877073363",

@@ -1,6 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PublicShell } from "@/components/site/public-shell";
+import { GoogleReviewsSection } from "@/components/site/google-reviews";
+import { Stars } from "@/components/site/review-card";
+import {
+  googleReviewListingUrl,
+  googleWriteReviewUrl,
+  reviewAverage,
+} from "@/lib/reviews";
 import { siteConfig, whatsappUrl } from "@/lib/config";
 
 const services = [
@@ -114,12 +121,30 @@ export default function Home() {
 
             {/* Clean, stand-alone review anchor link positioned cleanly below the number block */}
             <a
-              href="https://search.google.com/local/writereview?placeid=ChIJ0cExuV49ukURzVDv0J9hJHo"
+              href={googleWriteReviewUrl}
               target="_blank"
               rel="noreferrer"
               className="mt-3 block text-sm font-semibold text-gray-300 hover:text-white underline underline-offset-4 transition duration-200"
             >
               Leave us a review on Google ⭐
+            </a>
+
+            {/* Google rating badge positioned below the review link */}
+            <a
+              href={googleReviewListingUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 flex items-center gap-3 border border-[#c9d4f4] bg-[#f4f6fb] px-4 py-3 transition hover:border-[#f2c230]"
+            >
+              <span className="text-3xl font-black leading-none text-[#0f1d3a]">
+                {reviewAverage.toFixed(1)}
+              </span>
+              <span>
+                <Stars count={Math.round(reviewAverage)} />
+                <span className="mt-1 block text-xs font-semibold text-[#6b7a99]">
+                  Google Reviews
+                </span>
+              </span>
             </a>
           </div>
 
@@ -179,6 +204,8 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <GoogleReviewsSection />
 
       <section className="bg-[#0f1d3a] py-12 text-white">
         <div className="mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-4 px-4 lg:flex-row lg:items-center lg:px-6">
